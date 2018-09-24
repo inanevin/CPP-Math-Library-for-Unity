@@ -1,8 +1,4 @@
 #include "stdafx.h"
-#include <stdlib.h>     /* srand, rand */
-#include <math.h>
-#include <IUnityInterface.h>
-#include <Windows.h>
 #include "CalculationLibrary.h"
 
 #define LIBFUNC_API(rtype) UNITY_INTERFACE_EXPORT rtype UNITY_INTERFACE_API
@@ -10,72 +6,87 @@
 
 #pragma region Utility
 
-/*double FindDistanceBetweenVector3s(V3* p1, V3* p2)
+/// <summary> Finds and returns the distance between two 3 dimensional points. </summary>
+float FindDistanceBetweenVectors(V3 p1, V3 p2)
 {
-	// Store the differences.
-	double xDiff = p1->x - p2->x;
-	double yDiff = p1->y - p2->y;
-	double zDiff = p1->z - p2->z;
-
-	// Store the powers of the differences to the 2.
-	double powX = pow(xDiff, 2);
-	double powY = pow(yDiff, 2);
-	double powZ = pow(zDiff, 2);
-
-	// Apply the distance formula.
-	return sqrt(powX + powY + powZ);
-}*/
-
-double FindDistanceBetweenVector2s(V3* p1, V3* p2)
-{
-	// Store the differences.
-	double xDiff = p1->x - p2->x;
-	double yDiff = p1->y - p2->y;
-
-	// Store the powers of the differences to the 2.
-	double powX = pow(xDiff, 2);
-	double powY = pow(yDiff, 2);
-
-	// Apply the distance formula.
-	return sqrt(powX + powY);
+	float vecx = p1.x - p2.x;
+	float vecy = p1.y - p2.y;
+	float vecz = p1.z - p2.z;
+	float sqr = sqrt(vecx * vecx + vecy * vecy + vecz * vecz);
+	return sqr;
 }
 
-double Randomizedoubles(double min, double max)
+/// <summary> Finds and returns the distance between two 2 dimensional points. </summary>
+float FindDistanceBetweenVectors(V2 p1, V2 p2)
 {
-	double random = ((double)rand()) / (double)max;
-	double diff = max - min;
-	double r = random * diff;
-	return min + r;
+	float vecx = p1.x - p2.x;
+	float vecy = p1.y - p2.y;
+	return vecx * vecx + vecy * vecy;
 }
 
+/// <summary> Returns a float value randomized between the min and max arguments. Both are inclusive.</summary>
+float RandomizeFloats(float min, float max)
+{
+	// Check whether min is bigger than the max, in such case, switch them. Return min directly if they equal to each other.
+	if (min > max)
+	{
+		float tempMax = max;
+		max = min;
+		min = tempMax;
+	}
+	else if (min == max) return min;
+
+	// Make sure that randomization seed is set to change every second properly. Call only once via flag check on a static variable to make sure the seed doesnt stay the same.
+	if (sRandFlag == 0)
+	{
+		sRandFlag = 1;
+		srand(time(NULL));
+	}
+
+	// Use the rand() and equate with min & max to get a random number through the seed.
+	float r = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
+	return r;
+}
+
+/// <summary> Returns an int value randomized between the min and max arguments. Both are inclusive.</summary>
 int RandomizeInts(int min, int max)
 {
-	return rand() % min + max;
+	// Check whether min is bigger than the max, in such case, switch them. Return min directly if they equal to each other.
+	if (min > max)
+	{
+		int tempMax = max;
+		max = min;
+		min = tempMax;
+	}
+	else if (min == max) return min;
+
+	// Get random & return.
+	std::uniform_int_distribution<int> distribution(min, max);
+	int random = distribution(generator);
+	return random;
 }
 
 #pragma endregion
 
 
-
+// Externalized methods to be called from Unity.
 extern "C"
 {
 
-#pragma region VectorRandomization
+#pragma region Vector Randomization
 
-	/* Randomization functions for vectors. */
-
-	// Vector3 randomization methods & overloads for double and integer, as well as per property randomization & all around randomization.
-/*	void RandomizeVector3double(V3* v, double min, double max)
+	/* Randomization functions for vectors. Mins and maxes are inclusive. */
+	void RandomizeVector3F(V3* v, float min, float max)
 	{
-		v->x = Randomizedoubles(min, max);
-		v->y = Randomizedoubles(min, max);
-		v->z = Randomizedoubles(min, max);
+		v->x = RandomizeFloats(min, max);
+		v->y = RandomizeFloats(min, max);
+		v->z = RandomizeFloats(min, max);
 	}
-	void RandomizeVector3doubleRange(V3* v, double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
+	void RandomizeVector3FRange(V3* v, double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
 	{
-		v->x = Randomizedoubles(minX, maxX);
-		v->y = Randomizedoubles(minY, maxY);
-		v->z = Randomizedoubles(minZ, maxZ);
+		v->x = RandomizeFloats(minX, maxX);
+		v->y = RandomizeFloats(minY, maxY);
+		v->z = RandomizeFloats(minZ, maxZ);
 	}
 	void RandomizeVector3Int(V3* v, int min, int max)
 	{
@@ -89,17 +100,15 @@ extern "C"
 		v->y = RandomizeInts(minY, maxY);
 		v->z = RandomizeInts(minZ, maxZ);
 	}
-
-	// Vector2 randomization methods & overloads for double and integer, as well as per property randomization & all around randomization.
-	void RandomizeVector2double(V2* v, double min, double max)
+	void RandomizeVector2F(V2* v, double min, double max)
 	{
-		v->x = Randomizedoubles(min, max);
-		v->y = Randomizedoubles(min, max);
+		v->x = RandomizeFloats(min, max);
+		v->y = RandomizeFloats(min, max);
 	}
-	void RandomizeVector2doubleRange(V2* v, double minX, double maxX, double minY, double maxY)
+	void RandomizeVector2FRange(V2* v, double minX, double maxX, double minY, double maxY)
 	{
-		v->x = Randomizedoubles(minX, maxX);
-		v->y = Randomizedoubles(minY, maxY);
+		v->x = RandomizeFloats(minX, maxX);
+		v->y = RandomizeFloats(minY, maxY);
 	}
 	void RandomizeVector2Int(V2* v, int min, int max)
 	{
@@ -111,17 +120,59 @@ extern "C"
 		v->x = RandomizeInts(minX, maxX);
 		v->y = RandomizeInts(minY, maxY);
 	}
-	*/
+
 #pragma endregion
 
-	LIBFUNC_API(V3) FindClosest(V3* first, int size)
+#pragma region Vector Distance Calculations
+
+	/// <summary> Iterates through an array of points and finds the closest one to a given one. Returns the index of the closest one.
+	/// Maximum Distance it can calculate is : 999.999</summary>
+	int FindClosestV3(V3* vectorArray, V3 comparisonVector, int size)
 	{
-		
-		V3* closestPoint = (V3*)malloc(sizeof(V3*));
-		closestPoint->x = 12;
-		//closestPoint = first + size;
-		return *(closestPoint);
-		
+
+		int closestIndex = 0;
+		float closestDistance = MAX_VECTORCALDISTANCE;
+		float currentDistance = 0;
+
+		// Iterate through distances and check & record the closest.
+		for (int i = 0; i < size; i++)
+		{
+			currentDistance = FindDistanceBetweenVectors(vectorArray[i], comparisonVector);
+
+			if (currentDistance < closestDistance)
+			{
+				closestIndex = i;
+				closestDistance = currentDistance;
+			}
+		}
+
+		return closestIndex;
 	}
+
+	/// <summary> Iterates through an array of points and finds the closest one to a given one. Returns the index of the closest one.
+	/// Maximum Distance it can calculate is : 999.999</summary>
+	int FindClosestV2(V2* vectorArray, V2 comparisonVector, int size)
+	{
+
+		int closestIndex = 0;
+		float closestDistance = MAX_VECTORCALDISTANCE;
+		float currentDistance = 0;
+
+		// Iterate through distances and check & record the closest.
+		for (int i = 0; i < size; i++)
+		{
+			currentDistance = FindDistanceBetweenVectors(vectorArray[i], comparisonVector);
+
+			if (currentDistance < closestDistance)
+			{
+				closestIndex = i;
+				closestDistance = currentDistance;
+			}
+		}
+
+		return closestIndex;
+	}
+
+#pragma endregion
 
 }
