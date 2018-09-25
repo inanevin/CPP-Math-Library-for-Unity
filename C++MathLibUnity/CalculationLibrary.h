@@ -17,12 +17,50 @@ using namespace std;
 
 #pragma region UtilityPrototypes
 
-struct V2 { float x, y; };
-struct V3 { float x, y, z; };
+struct V2 
+{ 
+	float x, y; 
+
+	V2(float a, float b) : x(a), y(b) {}
+
+	float Magnitude()
+	{
+		return sqrt(x * x + y * y);
+	}
+
+	void Normalize()
+	{
+		float mag = Magnitude();
+		x/= mag;
+		y/= mag;
+	}
+};
+
+struct V3 { 
+
+	float x, y, z;
+
+	V3(float a, float b, float c) : x(a), y(b), z(c) {}
+
+
+	float Magnitude(V3 v)
+	{
+		sqrt(x * x + y * y + z * z);
+	}
+
+	V3 Normalize(V3 &v)
+	{
+		float mag = Magnitude(v);
+		v.x /= mag;
+		v.y /= mag;
+		v.z /= mag;
+	}
+};
+
 float FindDistanceBetweenVectors(V3, V3);
 float FindDistanceBetweenVectors(V2, V2);
-float RandomizeFloats(float, float);
-int RandomizeInts(int, int);
+float GetRandomFloatInRange(float, float);
+int GetRandomIntInRange(int, int);
 static int sRandFlag = 0;
 static std::default_random_engine generator;
 
@@ -48,8 +86,19 @@ extern "C"
 
 	LIBFUNC_API(int) FindClosestV3(V3*, V3, int);
 	LIBFUNC_API(int) FindClosestV2(V2*, V2, int);
+
+#pragma endregion
+
+#pragma region Vector Array Calculations
+
 	LIBFUNC_API(V3*) GetPointsBetweenVectorsV3(V3, V3, int&);
-	LIBFUNC_API(V3*) GetPointsBetweenVectorsV2(V2, V2, int&);
+	LIBFUNC_API(V2*) GetPointsBetweenVectorsV2(V2, V2, int&);
+
+#pragma endregion
+
+#pragma region Vector Circle Calculations
+
+	LIBFUNC_API(V2) GetRandomPointBetweenTwoConcentricCircles(V2*, V2, int&, int&);
 
 #pragma endregion
 

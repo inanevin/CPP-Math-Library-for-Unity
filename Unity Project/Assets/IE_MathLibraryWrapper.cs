@@ -200,6 +200,12 @@ public static class IE_MathLibraryWrapper
     [DllImport(s_LibName)]
     private static extern IntPtr GetPointsBetweenVectorsV3(ref Vector3Struct start, ref Vector3Struct end, ref int size);
 
+    [DllImport(s_LibName)]
+    private static extern IntPtr GetPointsBetweenVectorsV2(ref Vector2Struct start, ref Vector2Struct end, ref int size);
+
+    /// <summary> 
+    /// Returns a pointer pointing to the first element of dynamically allocated array which contains given amount of points between the start & end points.
+    /// </summary>
     public static Vector3[] GetPointsBetweenVectors(Vector3 start, Vector3 end, int size)
     {
         // Return if size is 0 or neg.
