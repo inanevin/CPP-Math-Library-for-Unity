@@ -129,7 +129,6 @@ extern "C"
 	/// Maximum Distance it can calculate is : 999.999</summary>
 	int FindClosestV3(V3* vectorArray, V3 comparisonVector, int size)
 	{
-
 		int closestIndex = 0;
 		float closestDistance = MAX_VECTORCALDISTANCE;
 		float currentDistance = 0;
@@ -153,7 +152,6 @@ extern "C"
 	/// Maximum Distance it can calculate is : 999.999</summary>
 	int FindClosestV2(V2* vectorArray, V2 comparisonVector, int size)
 	{
-
 		int closestIndex = 0;
 		float closestDistance = MAX_VECTORCALDISTANCE;
 		float currentDistance = 0;
@@ -171,6 +169,35 @@ extern "C"
 		}
 
 		return closestIndex;
+	}
+
+#pragma endregion
+
+#pragma region Vector Array Calculations
+
+	/// <summary> Returns a pointer pointing to the first element of dynamically allocated array which contains given amount of points between the start & end points.
+	V3* GetPointsBetweenVectorsV3(V3 start, V3 end, int& size)
+	{
+		// Return a null pointer if the size is 0 or neg.
+		if (size < 1)
+			return nullptr;
+
+		// Allocate mem for array.
+		V3* pointArray = (V3*)CoTaskMemAlloc(sizeof(V3) * size);
+		
+		// Calculate intervals for incrementation.
+		float intervalX = (end.x - start.x) / (size + 1);
+		float intervalY = (end.y - start.y) / (size + 1);
+		float intervalZ = (end.z - start.z) / (size + 1);
+
+		// Iterate & fill the array with incrementations by intervals.
+		for (int i = 0; i <= size; i++)
+		{
+			pointArray[i] = { start.x + intervalX * (i+1), start.y + intervalY * (i+1), start.z + intervalZ * (i+1) };
+		}
+
+		return pointArray;
+
 	}
 
 #pragma endregion

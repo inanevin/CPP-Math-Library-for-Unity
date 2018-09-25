@@ -4,11 +4,12 @@ using UnityEngine;
 using System;
 using System.Runtime.InteropServices;
 
-public static class IE_MathLibraryWrapper  {
+public static class IE_MathLibraryWrapper
+{
 
     #region Variables And Structs
 
-    public const string s_LibName = "a29";
+    public const string s_LibName = "a5";
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Vector3Struct
@@ -136,7 +137,7 @@ public static class IE_MathLibraryWrapper  {
     #region Vector Distance Calculations
 
     [DllImport(s_LibName)]
-    private static extern int FindClosestV3([In,Out] Vector3[] array, ref Vector3Struct comparison, int size);
+    private static extern int FindClosestV3([In, Out] Vector3[] array, ref Vector3Struct comparison, int size);
     [DllImport(s_LibName)]
     private static extern int FindClosestV2([In, Out] Vector2[] array, ref Vector2Struct comparison, int size);
 
@@ -190,6 +191,53 @@ public static class IE_MathLibraryWrapper  {
         Vector2Struct s = ToStruct(comparison);
         int index = FindClosestV2(arr.ToArray(), ref s, arr.Count);
         return arr[index];
+    }
+
+    #endregion,
+
+    #region Vector Array Calculations
+
+    [DllImport(s_LibName)]
+    private static extern IntPtr GetPointsBetweenVectorsV3(ref Vector3Struct start, ref Vector3Struct end, ref int size);
+
+    public static Vector3[] GetPointsBetweenVectors(Vector3 start, Vector3 end, int size)
+    {
+        // Return if size is 0 or neg.
+        if(size < 1)
+        {
+            Debug.LogError("Size of the required array can not be smaller than 1.");
+            return null;
+        }
+
+        // Init structs.
+        Vector3Struct vS = ToStruct(start);
+        Vector3Struct vE = ToStruct(end);
+
+        // The method will return the pointer pointing to the beginning address of the allocated & calculated array.
+        IntPtr arrayPointer = GetPointsBetweenVectorsV3(ref vS, ref vE, ref size);
+
+        // Init point vectors to copy the data.
+        Vector3[] points = new Vector3[size];
+
+        // Offset is going to be used to increment the pointer by the size of pointSize.
+        int offset = 0;
+
+        // Size of a Vector3Struct type variable in the memory. Which is blittable with the V3 struct in C++ library.
+        int pointSize = Marshal.SizeOf(typeof(Vector3Struct));
+
+        // Increment the whole array.
+        for (int i = 0; i < size; i++)
+        {
+            // Convert to structure from the pointer, which will be incremented by the size of V3 struct. Then convert the structure to Vector and assign.
+            points[i] = ToVector((Vector3Struct)Marshal.PtrToStructure(new IntPtr(arrayPointer.ToInt32() + offset), typeof(Vector3Struct)));
+            // Increment offset to shift the memory address forward.
+            offset += pointSize;
+        }
+
+        // Free the memory which was allocated by C++ method.
+        Marshal.FreeCoTaskMem(arrayPointer);
+
+        return points;
     }
 
     #endregion

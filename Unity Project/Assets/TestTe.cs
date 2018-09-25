@@ -35,13 +35,20 @@ public class TestTe : MonoBehaviour
           RandomizeVector3double(out v, 5.0d, 15.0d);
           Debug.Log(v);*/
 
-     
+        Vector3 start = new Vector3(2, 2, 2);
+        Vector3 end = new Vector3(10, 10, 10);
+        int size = 5;
+        Vector3[] arr = IE_MathLibraryWrapper.GetPointsBetweenVectors(start, end, size);
+
+        for(int i = 0; i < arr.Length; i++)
+        {
+            Debug.Log(arr[i]);
+        }
     }
 
     private void Update()
     {
-        Vector2 rand = IE_MathLibraryWrapper.GetRandomizedVector2(5f, 15f);
-        Debug.Log(rand);
+     
     }
 
 

@@ -8,6 +8,7 @@
 #include <math.h>
 #include <Windows.h>
 #include <IUnityInterface.h>
+#include <combaseapi.h>
 #define LIBFUNC_API(rtype) UNITY_INTERFACE_EXPORT rtype UNITY_INTERFACE_API
 #define MAX_VECTORCALDISTANCE 999999
 using namespace std;
@@ -47,6 +48,8 @@ extern "C"
 
 	LIBFUNC_API(int) FindClosestV3(V3*, V3, int);
 	LIBFUNC_API(int) FindClosestV2(V2*, V2, int);
+	LIBFUNC_API(V3*) GetPointsBetweenVectorsV3(V3, V3, int&);
+	LIBFUNC_API(V3*) GetPointsBetweenVectorsV2(V2, V2, int&);
 
 #pragma endregion
 
