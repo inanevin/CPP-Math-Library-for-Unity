@@ -246,6 +246,53 @@ public static class IE_MathLibraryWrapper
         return points;
     }
 
+    /// <summary> 
+    /// Returns a pointer pointing to the first element of dynamically allocated array which contains given amount of points between the start & end points.
+    /// </summary>
+    public static Vector2[] GetPointsBetweenVectors(Vector2 start, Vector2 end, int size)
+    {
+        // Return if size is 0 or neg.
+        if (size < 1)
+        {
+            Debug.LogError("Size of the required array can not be smaller than 1.");
+            return null;
+        }
+
+        // Init structs.
+        Vector2Struct vS = ToStruct(start);
+        Vector2Struct vE = ToStruct(end);
+
+        // The method will return the pointer pointing to the beginning address of the allocated & calculated array.
+        IntPtr arrayPointer = GetPointsBetweenVectorsV2(ref vS, ref vE, ref size);
+
+        // Init point vectors to copy the data.
+        Vector2[] points = new Vector2[size];
+
+        // Offset is going to be used to increment the pointer by the size of pointSize.
+        int offset = 0;
+
+        // Size of a Vector3Struct type variable in the memory. Which is blittable with the V3 struct in C++ library.
+        int pointSize = Marshal.SizeOf(typeof(Vector2Struct));
+
+        // Increment the whole array.
+        for (int i = 0; i < size; i++)
+        {
+            // Convert to structure from the pointer, which will be incremented by the size of V3 struct. Then convert the structure to Vector and assign.
+            points[i] = ToVector((Vector2Struct)Marshal.PtrToStructure(new IntPtr(arrayPointer.ToInt32() + offset), typeof(Vector2Struct)));
+            // Increment offset to shift the memory address forward.
+            offset += pointSize;
+        }
+
+        // Free the memory which was allocated by C++ method.
+        Marshal.FreeCoTaskMem(arrayPointer);
+        
+        return points;
+    }
+
+    #endregion
+
+    #region Vector Circle Calculations
+
     #endregion
 
     #region Utility
